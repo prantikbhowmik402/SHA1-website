@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Home Automation</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <div class="top-bar">
+      <a href="/" class="home-btn" title="Home">🏡</a>
+    </div>
+    
+    <h1>Smart Home Automation</h1>
+
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search a feature..." oninput="filterCards()" />
+    </div>
+    
+    <div class="account-btn">
+      {% if username %}
+        <div class="dropdown">
+          <button onclick="toggleDropdown()" class="dropbtn">👤 {{ username.split(' ')[0] }}</button>
+          <div id="myDropdown" class="dropdown-content">
+            <a href="/logout">Logout</a>
+          </div>
+        </div>
+      {% else %}
+        <a href="/loginpage" title="Login / Signup" class="home-btn">👤 Account</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="grid-container">
+    <!-- Lights Control -->
+    <section class="card">
+      <h2>Lights</h2>
+      <button onclick="toggleLight()">Toggle Light</button>
+      <p id="light-status">Light is OFF</p>
+    </section>
+
+    <!-- Fan Control -->
+    <section class="card">
+      <h2>Fan Speed</h2>
+      <input type="range" min="0" max="5" id="fanSpeed" onchange="setFanSpeed(this.value)">
+      <p id="fan-status">Fan speed: 0</p>
+    </section>
+
+    <!-- Temperature -->
+    <section class="card">
+      <h2>Room Temperature</h2>
+      <input type="number" id="tempInput" placeholder="Enter temperature" onchange="checkTemperature()">
+      <p id="temp-message">Room is normal</p>
+    </section>
+
+    <!-- Gas Leak -->
+    <section class="card">
+      <h2>Gas Leak Detection</h2>
+      <button onclick="detectGas()">Simulate Gas Leak</button>
+      <p id="gas-status">All clear</p>
+    </section>
+
+    <!-- Door Lock -->
+    <section class="card">
+      <h2>Smart Door Lock</h2>
+      <input type="password" id="doorPassword" placeholder="Enter password">
+      <button onclick="unlockDoor()">Unlock</button>
+      <p id="lock-status">Door is Locked</p>
+    </section>
+
+    <!-- Plant Watering -->
+    <section class="card">
+      <h2>Plant Watering</h2>
+      <button onclick="checkSoil()">Check Soil</button>
+      <p id="plant-status">Soil status unknown</p>
+    </section>
+
+    <!-- Curtains -->
+    <section class="card">
+      <h2>Curtains</h2>
+      <button onclick="toggleCurtain()">Open/Close Curtains</button>
+      <p id="curtain-status">Curtains are Closed</p>
+    </section>
+
+    <!-- Smart Bell -->
+    <section class="card">
+      <h2>Smart Bell</h2>
+      <button onclick="ringBell()">Press Door Bell</button>
+      <p id="bell-status">No visitor</p>
+    </section>
+
+    <!-- Auto Door Opener -->
+    <section class="card">
+      <h2>Auto Door Opener</h2>
+      <button onclick="approachDoor()">Simulate Approach</button>
+      <p id="auto-door-status">No one nearby</p>
+    </section>
+
+    <!-- Intruder Alert -->
+    <section class="card">
+      <h2>Intruder Detection</h2>
+      <button onclick="detectIntruder()">Check for Intruder</button>
+      <p id="intruder-status">All safe</p>
+    </section>
+
+    <!-- Motion Activated Light -->
+    <section class="card">
+      <h2>Motion Activated Light</h2>
+      <button onclick="detectMotion()">Detect Motion</button>
+      <p id="motion-light-status">Light is OFF</p>
+    </section>
+
+    <!-- Light Dimmer -->
+    <section class="card">
+      <h2>Light Dimmer</h2>
+      <input type="range" min="0" max="100" value="50" oninput="updateDimmer(this.value)">
+      <p id="dimmer-status">Brightness: 50%</p>
+    </section>
+
+    <!-- Smoke Detection -->
+    <section class="card">
+      <h2>Smoke Detection</h2>
+      <button onclick="detectSmoke()">Simulate Smoke</button>
+      <p id="smoke-status">No smoke detected</p>
+    </section>
+
+    <!-- Schedule-Based Control -->
+    <section class="card">
+      <h2>Schedule-Based Control</h2>
+      <label>Turn ON Time:</label>
+      <input type="time" id="onTime"><br><br>
+      <label>Turn OFF Time:</label>
+      <input type="time" id="offTime"><br><br>
+      <button onclick="setSchedule()">Set Schedule</button>
+      <p id="schedule-status">No schedule set</p>
+    </section>
+
+    <!-- Day/Night Light -->
+    <section class="card">
+      <h2>Day/Night Light</h2>
+      <button onclick="checkDaylight(true)">Simulate Darkness + Motion</button>
+      <p id="daylight-status">Light OFF</p>
+    </section>
+
+    <!-- Room Occupancy -->
+    <section class="card">
+      <h2>Room Occupancy Detection</h2>
+      <button onclick="roomOccupied(true)">Enter Room</button>
+      <button onclick="roomOccupied(false)">Leave Room</button>
+      <p id="room-status">Room is empty</p>
+    </section>
+
+    <!-- Voice Control -->
+    <section class="card">
+      <h2>Voice Control</h2>
+      <button onclick="startVoiceControl()">🎤 Start Voice Control</button>
+      <p id="voice-status">Say a command (e.g., 'light on')</p>
+    </section>
+
+    <!-- Water Level Monitoring -->
+    <section class="card">
+      <h2>Water Level Monitoring</h2>
+      <input type="range" min="0" max="100" value="40" oninput="checkWaterLevel(this.value)">
+      <p id="water-status">Water Level: 40%</p>
+    </section>
+
+    <!-- Inverter Status -->
+    <section class="card">
+      <h2>Inverter Status</h2>
+      <button onclick="setInverter(true)">Inverter ON</button>
+      <button onclick="setInverter(false)">Inverter OFF</button>
+      <p id="inverter-status">Inverter OFF</p>
+    </section>
+
+    <!-- Energy Monitoring -->
+    <section class="card">
+      <h2>Energy Monitoring</h2>
+      <button onclick="showEnergyUsage()">Check Usage</button>
+      <p id="energy-status">No data</p>
+    </section>
+
+    <!-- Facial Recognition Entry -->
+    <section class="card">
+      <h2>Facial Recognition</h2>
+      <button onclick="facialRecognition()">Scan Face</button>
+      <p id="face-status">Access not granted</p>
+    </section>
+
+    <!-- Fire Alert System -->
+    <section class="card">
+      <h2>Fire Alert</h2>
+      <button onclick="fireAlert()">Simulate Fire</button>
+      <p id="fire-status">Safe</p>
+    </section>
+
+    <!-- Rain Detection -->
+    <section class="card">
+      <h2>Rain Detection</h2>
+      <button onclick="detectRain()">Simulate Rain</button>
+      <p id="rain-status">No rain</p>
+    </section>
+
+    <!-- Pet Feeder -->
+    <section class="card">
+      <h2>Pet Feeder</h2>
+      <button onclick="feedPet()">Feed Now</button>
+      <p id="pet-status">Pet not fed yet</p>
+    </section>
+
+    <!-- Inverter Smart Power Control -->
+    <section class="card">
+      <h2>Inverter Smart Power Control</h2>
+      <label for="batteryLevel">Enter Inverter Battery Percentage:</label>
+      <input type="number" id="batteryLevel" min="0" max="100" placeholder="e.g., 75">
+      <button onclick="checkInverterStatus()">Check Status</button>
+      <p id="inverterStatus">Status will appear here...</p>
+    </section>
+
+    <!-- Pet Feeder Automation -->
+    <section class="card">
+      <h2>Pet Feeder Automation</h2>
+      <label>Set Normal Feeding Time:</label>
+      <input type="time" id="feedTime"><br><br>
+      <label>Grace Delay (minutes after normal time):</label>
+      <input type="number" id="graceDelay" placeholder="e.g., 10"><br><br>
+      <button onclick="setPetFeederAutomation()">Set Pet Feeding Schedule</button>
+    </section>
+  </main>
+
+  <footer>
+    <p>Contact Us : SmartHomeAutomation108@gmail.com</p>
+  </footer>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+  <script>
+    function toggleDropdown() {
+      document.getElementById("myDropdown").classList.toggle("show");
+    }
+    
+    window.onclick = function(event) {
+      if (!event.target.matches('.dropbtn')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+          var openDropdown = dropdowns[i];
+          if (openDropdown.classList.contains('show')) {
+            openDropdown.classList.remove('show');
+          }
+        }
+      }
+    }
+  </script>
+</body>
+</html>
+
+
+<!-- cd "C:\low size\SmartHomeIoT\backend"-->
